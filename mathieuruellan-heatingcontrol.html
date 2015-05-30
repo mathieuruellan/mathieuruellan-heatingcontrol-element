@@ -1,0 +1,256 @@
+
+
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../layout/layout.html">
+<link rel="import" href="../iron-icon/iron-icon.html">
+<link rel="import" href="../iron-icons/iron-icons.html">
+<link rel="import" href="../iron-ajax/iron-ajax.html">
+
+<link rel="import" href="../paper-toolbar/paper-toolbar.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../paper-spinner/paper-spinner.html">
+<link rel="import" href="../paper-toast/paper-toast.html">
+<link rel="import" href="../paper-toggle-button/paper-toggle-button.html">
+<link rel="import" href="../paper-drawer-panel/paper-drawer-panel.html">
+
+<dom-module id="mathieuruellan-heatingcontrol" >
+    <style>
+        section {
+        }
+
+        paper-header-panel {
+            height: 400px;
+            margin: 5px;
+        }
+
+        paper-header-panel[mode=cover]::shadow #mainContainer {
+            left: 70px;
+        }
+
+        .paper-header {
+            text-align: center;
+        }
+    </style>
+
+    <template>
+
+        <iron-ajax id="getMode"
+                   url="undefined"
+                   handle-as="json"
+                   on-response="_handleGetMode"
+                   on-complete="_handeGetModeComplete"
+                   on-error="_handeGetModeError">
+        </iron-ajax>
+
+
+        <iron-ajax id="setMode"
+                   url="undefined"
+                   method="POST"
+                   handle-as="json"
+                   on-error="_handleSetModeError">
+        </iron-ajax>
+
+        <section>
+             <paper-header-panel>
+                <paper-toolbar>
+                    <paper-icon-button icon="menu"></paper-icon-button>
+                    <span flex><div class="paper-header"> Heating Control </div></span>
+                    <paper-icon-button icon="refresh" on-tap="connect"></paper-icon-button>
+                </paper-toolbar>
+            </paper-header-panel>
+
+
+            <div class="layout center horizontal">
+                <div class="flex">Status</div>
+
+                <template is="dom-if" if="{{_isStateConnecting(state)}}">
+                    <div><paper-spinner active></paper-spinner></div>
+                </template>
+
+                <template is="dom-if" if="{{_isStateError(state)}}">
+                    <div>
+                        <iron-icon icon="report-problem" alt="{{error}}"></iron-icon>
+                    </div>
+                </template>
+
+                <template is="dom-if" if="{{_isStateConnected(state)}}">
+                    <div>
+                        <iron-icon icon="done" alt="{{connected}}"></iron-icon>
+                    </div>
+                </template>
+            </div>
+
+
+            <div class="layout center horizontal">
+                <div class="flex">Heating</div>
+                <paper-toggle-button  id="toggleHeatingMode"  checked="{{_heatingModeIsOn(heatingmode)}}" disabled="{{!_isStateConnected(state)}}"  on-tap="toggleHeatingMode" ></paper-toggle-button>
+            </div>
+
+           <paper-toast id="toaster" text="{{error}}"></paper-toast>
+
+        </section>
+    </template>
+
+
+</dom-module>
+
+
+<script>
+
+    (function() {
+        Polymer({
+            is: "mathieuruellan-heatingcontrol",
+
+            properties: {
+                deviceid: {type: String, value: undefined, observer: '_deviceidChanged'},
+                accesstoken: {type: String, value: undefined},
+                state: {type: String, value: 'undefined'},
+                error: {type: String, value: undefined},
+                heatingmode: {type: String, value: 'OFF'}
+            },
+
+            observers: [
+                '_deviceidChanged(deviceid)',
+                '_requestParamsChanged(accesstoken,heatingmode)',
+                '_elementParameterChanged(deviceid,accesstoken)'
+            ],
+
+            _deviceidChanged: function (deviceid) {
+                this.$.getMode.url = this._apiDeviceUrl(deviceid) + '/heatingmode';
+                this.$.setMode.url = this._apiDeviceUrl(deviceid) + '/mode';
+            },
+
+            _requestParamsChanged: function (accesstoken, heatingmode) {
+                this.$.getMode.params = {
+                    'access_token': accesstoken
+                };
+
+                var body = "access_token=" + accesstoken + "&mode=" + ((heatingmode === 'OFF') ? "ON" : "OFF");
+                this.$.setMode.body = body;
+            },
+
+            _elementParameterChanged: function(deviceid,accesstoken){
+
+            },
+
+
+            _heatingModeIsOn: function (heatingmode) {
+                return heatingmode === 'ON';
+            },
+
+            _isStateConnected: function (state) {
+                return state === 'connected';
+            },
+
+            _isStateError: function (state) {
+                return state === 'error';
+            },
+
+            _isStateConnecting: function (state) {
+                return state === 'connecting';
+            },
+
+            toggleHeatingMode: function () {
+                console.log('changing heating mode');
+                this.$.setMode.generateRequest();
+            },
+
+
+            _apiDeviceUrl: function (deviceid) {
+                return 'https://api.particle.io/v1/devices/' + deviceid;
+            },
+
+
+            _getDeviceEventUrl: function (deviceid, accesstoken) {
+                return this._apiDeviceUrl(deviceid) + '/events?access_token=' + accesstoken;
+            },
+
+            _getMode: function () {
+                this.$.getMode.generateRequest();
+            },
+
+            source: undefined,
+
+            _sourceErrorFn: function (event) {
+                console.log('device source error.');
+                this.error = 'Unable to connect to event API.';
+                this.state = 'error';
+                this.$.toaster.show();
+
+            },
+
+
+            _sourceOnOpenFn: function (event) {
+                console.log('device source opened.');
+                this._getMode();
+
+            },
+
+            _onHeatModeChangedEvent: function (event) {
+
+                data = JSON.parse(event.data);
+                this.heatingmode = data.data;
+
+                console.log("changed mode event: mode = " + this.heatingmode);
+
+            },
+
+            connect: function () {
+
+                if (this.source) {
+                    this.source.onmessage = undefined;
+                    this.source.onerror = undefined;
+                    this.source.onopen = undefined
+                    this.source.close();
+                }
+                this.source = undefined;
+                this.state = 'connecting';
+
+                this.source = new EventSource(this._getDeviceEventUrl(this.deviceid, this.accesstoken));
+
+                this.source.onerror = this._sourceErrorFn.bind(this);
+                this.source.onopen = this._sourceOnOpenFn.bind(this);
+
+                this.source.addEventListener("heatModeChanged", this._onHeatModeChangedEvent.bind(this));
+
+            },
+
+
+            _handleSetModeError: function (event, error) {
+                console.error('setMode error: ' + JSON.stringify(error.message));
+                this.error = 'Unable to set mode.';
+                this.$.toaster.show();
+            },
+
+            _handleGetMode: function (event, response) {
+                console.log('GetMode success.');
+                if (!response || response.result) {
+                    this.state = 'error';
+                    return;
+                }
+                this.state = 'connected';
+                this.heatingmode = response.result;
+            },
+
+            _handeGetModeError: function (event, error) {
+                console.error('GetMode error ' + JSON.stringify(event.message));
+                this.error = 'Unable to get mode.';
+                this.state = 'error';
+                this.$.toaster.show();
+            },
+
+            _handeGetModeComplete: function (event) {
+
+            },
+
+            ready: function () {
+                // the toggle is activated by SSE or http responses
+                this.$.toggleHeatingMode.toggles = false;
+
+                //
+                this.connect();
+            }
+        });
+    }());
+ </script>
+

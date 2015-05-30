@@ -1,0 +1,40 @@
+{
+  "name": "mathieuruellan-heatingcontrol-element",
+  "version": "0.0.1",
+  "description": "An element to control my heating system with a particle spark core",
+  "authors": [
+    "Mathieu Ruellan"
+  ],
+  "keywords": [
+    "web-components",
+    "polymer",
+    "particle",
+    "sparkcore"
+  ],
+  "private": true,
+  "license": "http://polymer.github.io/LICENSE.txt",
+  "main": "mathieuruellan-heatingcontrol.html",
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.0.0",
+    "iron-ajax": "PolymerElements/iron-ajax#^1.0.0",
+    "iron-icon": "PolymerElements/iron-icon#^1.0.0",
+    "iron-icons": "PolymerElements/iron-icons#^1.0.0",
+    "paper-icon-button": "PolymerElements/paper-icon-button#^1.0.0",
+    "paper-toolbar": "PolymerElements/paper-toolbar#^1.0.0",
+    "paper-toast": "PolymerElements/paper-toast#^1.0.0",
+    "paper-drawer-panel": "PolymerElements/paper-drawer-panel#^1.0.0",
+    "paper-spinner": "PolymerElements/paper-spinner#^1.0.0",
+    "paper-toggle-button": "PolymerElements/paper-toggle-button#^1.0.0",
+    "layout": "Polymer/layout"
+  },
+  "devDependencies": {
+    "web-component-tester": "*",
+    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+    "test-fixture": "PolymerElements/test-fixture#^1.0.0",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0",
+    "paper-input": "PolymerElements/paper-input#^1.0.0"
+  },
+  "resolutions": {
+    "polymer": "^1.0.0"
+  }
+}

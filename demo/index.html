@@ -1,0 +1,55 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+
+    <title>heating control demo</title>
+
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+    <link rel="import" href="../../paper-input/paper-input.html">
+    <link rel="import" href="../mathieuruellan-heatingcontrol.html">
+
+
+    <link rel="stylesheet" href="../../paper-styles/paper-styles.html">
+    <link rel="import" href="../../paper-styles/demo-pages.html">
+
+    <style is="custom-style">
+      html, body {
+        height: 100%;
+      }
+    </style>
+  </head>
+
+  <body>
+  <template is="dom-bind">
+  <div class="vertical center-justified layout">
+    <h4>Enter your Particle device settings</h4>
+    <div class="vertical-section">
+      <paper-input name="deviceid" label="device Id" auto-validate pattern="[a-zA-Z0-9\-]*" error-message="invalid character" value="{{deviceid}}"></paper-input>
+      <paper-input name="accesstoken" label="api access token" auto-validate pattern="[a-zA-Z0-9\-]*" error-message="invalid character" value="{{accesstoken}}"></paper-input>
+      </div>
+    </div>
+
+      <h4>here is the tested component:</h4>
+      <div class="vertical center-justified layout">
+          <div class="vertical-section">
+        <mathieuruellan-heatingcontrol deviceid="{{deviceid}}" accesstoken="{{accesstoken}}"></mathieuruellan-heatingcontrol>
+              </div>
+      </div>
+    </template>
+  </body>
+
+</html>
