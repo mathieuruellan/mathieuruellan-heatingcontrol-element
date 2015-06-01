@@ -104,16 +104,22 @@
             properties: {
                 deviceid: {type: String, value: undefined, observer: '_deviceidChanged'},
                 accesstoken: {type: String, value: undefined},
-                state: {type: String, value: 'undefined'},
+                state: {type: String, value: 'error'},
                 error: {type: String, value: undefined},
+                autoconnect: {type: Boolean, value: false},
                 heatingmode: {type: String, value: 'OFF'}
             },
 
             observers: [
+                '_stateChanged(state)',
                 '_deviceidChanged(deviceid)',
                 '_requestParamsChanged(accesstoken,heatingmode)',
                 '_elementParameterChanged(deviceid,accesstoken)'
             ],
+
+            _stateChanged: function(state){
+                this.fire('state-changed',this.state);
+            },
 
             _deviceidChanged: function (deviceid) {
                 this.$.getMode.url = this._apiDeviceUrl(deviceid) + '/heatingmode';
@@ -197,6 +203,8 @@
 
             connect: function () {
 
+
+
                 if (this.source) {
                     this.source.onmessage = undefined;
                     this.source.onerror = undefined;
@@ -204,6 +212,14 @@
                     this.source.close();
                 }
                 this.source = undefined;
+
+                if (this.deviceid === undefined || this.accesstoken === undefined || this.deviceid === '' || this.accesstoken === undefined){
+                    this.state = 'error';
+                    this.error = 'Missing settings (deviceid or accesstoken).';
+                    this.$.toaster.show();
+                    return;
+                }
+
                 this.state = 'connecting';
 
                 this.source = new EventSource(this._getDeviceEventUrl(this.deviceid, this.accesstoken));
@@ -248,7 +264,9 @@
                 this.$.toggleHeatingMode.toggles = false;
 
                 //
-                this.connect();
+                if (this.autoconnect){
+                    this.connect();
+                }
             }
         });
     }());

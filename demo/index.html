@@ -20,6 +20,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
     <link rel="import" href="../../paper-input/paper-input.html">
+    <link rel="import" href="../../paper-button/paper-button.html">
+    <link rel="import" href="../../iron-form/iron-form.html">
+
     <link rel="import" href="../mathieuruellan-heatingcontrol.html">
 
 
@@ -34,22 +37,49 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </head>
 
   <body>
-  <template is="dom-bind">
-  <div class="vertical center-justified layout">
-    <h4>Enter your Particle device settings</h4>
-    <div class="vertical-section">
-      <paper-input name="deviceid" label="device Id" auto-validate pattern="[a-zA-Z0-9\-]*" error-message="invalid character" value="{{deviceid}}"></paper-input>
-      <paper-input name="accesstoken" label="api access token" auto-validate pattern="[a-zA-Z0-9\-]*" error-message="invalid character" value="{{accesstoken}}"></paper-input>
+    <template id="demo-template" is="dom-bind">
+    <div class="vertical center-justified layout">
+      <h4>Enter your Particle device settings</h4>
+      <div class="vertical-section">
+          <form is="iron-form" id="device-settings-form" >
+                <paper-input name="deviceid" label="device Id" auto-validate pattern="[a-zA-Z0-9\-]*" error-message="invalid character" value="{{deviceid}}"></paper-input>
+                <paper-input name="accesstoken" label="api access token" auto-validate pattern="[a-zA-Z0-9\-]*" error-message="invalid character" value="{{accesstoken}}"></paper-input>
+                <paper-button id="connect-btn" raised onclick="submitForm()">Connect</paper-button>
+          </form>
+        </div>
       </div>
-    </div>
 
       <h4>here is the tested component:</h4>
       <div class="vertical center-justified layout">
           <div class="vertical-section">
-        <mathieuruellan-heatingcontrol deviceid="{{deviceid}}" accesstoken="{{accesstoken}}"></mathieuruellan-heatingcontrol>
-              </div>
+            <mathieuruellan-heatingcontrol id="heating-control" deviceid="{{deviceid}}" accesstoken="{{accesstoken}}"></mathieuruellan-heatingcontrol>
+          </div>
       </div>
     </template>
+
+
   </body>
 
+  <script >
+    document.addEventListener('WebComponentsReady', function() {
+      var templateElt = document.getElementById("demo-template");
+      var heatingControlElt = document.getElementById("heating-control");
+        var connectBtnElt = document.getElementById("connect-btn");
+
+      heatingControlElt.addEventListener('state-changed', function (event) {
+        console.log(event.type + " : " + event.detail);
+
+          connectBtnElt.disabled = event.detail.startsWith('connect');
+
+      });
+
+        submitForm  = function(){
+            heatingControlElt.connect();
+        };
+
+
+    });
+
+
+  </script>
 </html>
