@@ -22,7 +22,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <link rel="import" href="../../paper-input/paper-input.html">
     <link rel="import" href="../../paper-button/paper-button.html">
     <link rel="import" href="../../iron-form/iron-form.html">
-
+    <link rel="import" href="../../iron-localstorage/iron-localstorage.html">
     <link rel="import" href="../mathieuruellan-heatingcontrol.html">
 
 
@@ -38,7 +38,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   <body>
     <template id="demo-template" is="dom-bind">
-    <div class="vertical center-justified layout">
+
+      <iron-localstorage id="localstorage-deviceid" name="heatingcontrol-demo-deviceid" autoSaveDisabled="true" value="{{deviceid}}"></iron-localstorage>
+      <iron-localstorage id="localstorage-accesstoken" name="heatingcontrol-demo-accesstoken" autoSaveDisabled="true" value="{{accesstoken}}"></iron-localstorage>
+
+      <div class="vertical center-justified layout">
       <h4>Enter your Particle device settings</h4>
       <div class="vertical-section">
           <form is="iron-form" id="device-settings-form" >
@@ -62,20 +66,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   <script >
     document.addEventListener('WebComponentsReady', function() {
-      var templateElt = document.getElementById("demo-template");
       var heatingControlElt = document.getElementById("heating-control");
-        var connectBtnElt = document.getElementById("connect-btn");
+      var connectBtnElt = document.getElementById("connect-btn");
+
+      var localstorage_deviceid = document.getElementById("localstorage-deviceid");
+      var localstorage_accesstoken = document.getElementById("localstorage-accesstoken");
+
+      var submitForm  = function(){
+        localstorage_deviceid.save();
+        localstorage_accesstoken.save();
+        heatingControlElt.connect();
+      };
+
 
       heatingControlElt.addEventListener('state-changed', function (event) {
         console.log(event.type + " : " + event.detail);
+        connectBtnElt.disabled = event.detail.startsWith('cnnect');
 
-          connectBtnElt.disabled = event.detail.startsWith('connect');
+        if (event.detail === "connected"){
+        }
 
       });
 
-        submitForm  = function(){
-            heatingControlElt.connect();
-        };
 
 
     });

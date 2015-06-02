@@ -185,7 +185,6 @@
 
             },
 
-
             _sourceOnOpenFn: function (event) {
                 console.log('device source opened.');
                 this._getMode();
@@ -202,9 +201,6 @@
             },
 
             connect: function () {
-
-
-
                 if (this.source) {
                     this.source.onmessage = undefined;
                     this.source.onerror = undefined;

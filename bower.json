@@ -28,14 +28,15 @@
     "layout": "Polymer/layout",
     "google-youtube": "GoogleWebComponents/google-youtube#^1.1.0",
     "iron-form": "PolymerElements/iron-form#^1.0.0",
-    "paper-button": "PolymerElements/paper-button#^1.0.0"
+    "paper-button": "PolymerElements/paper-button#^1.0.0",
+    "paper-input": "PolymerElements/paper-input#^1.0.0",
+    "iron-localstorage": "PolymerElements/iron-localstorage#^1.0.0",
+    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0"
   },
   "devDependencies": {
     "web-component-tester": "*",
-    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
     "test-fixture": "PolymerElements/test-fixture#^1.0.0",
-    "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0",
-    "paper-input": "PolymerElements/paper-input#^1.0.0"
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
   },
   "resolutions": {
     "polymer": "^1.0.0"
